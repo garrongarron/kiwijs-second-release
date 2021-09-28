@@ -47,10 +47,10 @@ class Component {
         })
         return parent
     }
-    map(name, callback){
-        if(Array.isArray(this.prop[name]))
-            return this.prop[name].map(callback).join('')
-        throw `Property ${name} is not Array`
+    map(propName, callback){
+        if(Array.isArray(this.prop[propName]))
+            return this.prop[propName].map(callback).join('')
+        throw `Property ${propName} is not Array`
     }
     setNewState(state){
         this.state = state
@@ -65,17 +65,20 @@ class Component {
     afterUpdate(){
 
     }
+    template(){
+        throw "No template"
+    }
     exec(update = false) {
         if(!update) this.setDefaultState()
         let node = new DOMParser().parseFromString(this.template(), 'text/html')
         this.settingListener(node.body)
         this.addChild(node.body)
-        let out = node.body.firstChild
-        this.node = out
         if(!this.done){
             this.done = true
             this.beforeAppendChild(node.body)
         }
+        let out = node.body.firstChild
+        this.node = out
         return out
     }
     querySelector(selector){
