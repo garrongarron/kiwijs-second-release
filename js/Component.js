@@ -4,6 +4,7 @@ class Component {
         this.prop = {}
         this.node = null
         this.done = null
+        this.where = '\n' + this.constructor.toString()
     }
     setState() {
         return {}
@@ -31,10 +32,15 @@ class Component {
         for (let index = 0; index < node.attributes.length; index++) {
             if (typeof this[node.attributes[index].value] == 'function') {
                 instanceComponet.prop[node.attributes[index].name] = this[node.attributes[index].value]()
+            } else {
+                instanceComponet.prop[node.attributes[index].name] = JSON.parse(node.attributes[index].value)
             }
         }
     }
     addChild(parent) {
+        if (!Array.isArray(this.setChildComponent())) {
+            throw `The method setChildComponent does not return an Array of Components` + this.where
+        }
         this.setChildComponent().map(subComponent => {
             let nodeList = parent.querySelectorAll(subComponent.name)
             for (let index = 0; index < nodeList.length; index++) {
@@ -50,8 +56,7 @@ class Component {
     map(propName, callback) {
         if (Array.isArray(this.prop[propName]))
             return this.prop[propName].map(callback).join('')
-        console.error(`Property ${propName} is not Array`);
-        throw `Property ${propName} is not Array`
+        throw `Property ${propName} is not Array` + this.where
     }
     setNewState(state) {
         this.state = state
@@ -59,21 +64,22 @@ class Component {
         this.node.parentNode.replaceChild(this.exec(true), old)//?
         this.afterUpdate(this.node.parentNode)
     }
-    beforeAppendChild() {
+    beforeAppendChild(parentNode) {
 
     }
     afterUpdate() {
 
     }
     template() {
-        throw "No template"
+        throw "No template" + this.where
     }
     propMap(callback) {
         Object.keys(this.prop).forEach(keys => {
-            if (Array.isArray(this.prop[keys]))
+            if (Array.isArray(this.prop[keys])) {
                 this.prop[keys].__proto__.toString = function () {
                     return this.join('');
                 };
+            }
         })
         return this.prop
     }
